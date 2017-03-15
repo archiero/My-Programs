@@ -1,4 +1,4 @@
 # My-Programs
-Here are some example programs I've written. The only ones currently up are the ones I did for Data Mining. Since I'm currently building a 
-of a gas cylinder in C CUDA and am in Data Mining 2, I hope to have more up to date on here.
-Note: The final project in Data Mining is a bit rough looking because we had not covered any visualization techinques yet and because, when building it, we told to pretend that we were presenting our code to a group of fellow data miners and would not need to spend too much time polishing it. However, I added a summary pdf document briefly discusses what I did, why I did it and the results in a quicker and more attractive format.
+Here are some example programs I've written. The only ones currently up are the ones I did for Data Mining 1, some homeworks, my final project and a file containg a bunch of functions I wrote for class. Since I'm currently building a model of a gas cylinder in C CUDA and am in Data Mining 2, I hope to have more up on here within a few months.
+
+Note: The final project in Data Mining includes four items: a paper on cross-validation that I quote (kohavi cross-validation); an RNW file with all of my code inside of it (FinalProject.RNW); the data set I pulled from the UCI Machine Learning Database (the abalone data set); and a short pdf (Summary.pdf) presenting my results, what I did and why I did it.
