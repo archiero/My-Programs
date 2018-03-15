@@ -1,0 +1,54 @@
+\input{helper/macros}
+\input{helper/course_info}
+
+\usepackage[T1]{fontenc}
+
+%Sets page layout
+\usepackage{geometry}
+\geometry{verbose,tmargin=0.75in,bmargin=0.5in,lmargin=0.4in,rmargin=0.4in}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1ex}
+\setlength{\parskip}{1ex}
+
+%Sets header and footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0ex}
+\renewcommand{\footrulewidth}{0ex}
+\headsep = 0ex
+\fancyhf{}
+\usepackage[yyyymmdd]{datetime}
+\settimeformat{ampmtime}
+%Allows "page 2 of 7" in footer
+\usepackage{lastpage}
+\AtEndDocument{
+	%\makescratch
+	\label{LastPage}
+}
+\fancyhead[R]{\textbf{\large{\@author}}}
+\fancyfoot[L]{Compiled \today \ at \currenttime}
+\fancyfoot[R]{\thepage\ of\ \pageref{LastPage}}
+
+%displays line numbers
+\usepackage{listings}
+\lstset{breaklines=true, breakatwhitespace=true, numbers=none, firstnumber=last}
+\usepackage{lineno}
+\renewcommand\linenumberfont{\footnotesize}
+
+
+%Makes header of first page
+\AtBeginDocument{
+  \@nameline
+	\begin{center}
+	\textbf{
+	\LARGE{\@title} \\
+	\@subtitle
+	\small{\@coursenumber--\@coursetitle \hspace{2ex} \@semester \hspace{2ex} \@school \hspace{2ex} \@instructor \@assignedDate \@dueDate}
+	}
+	\end{center}
+	\vspace{-2\parskip}
+	\hhrule
+    \vspace{\parskip}
+}

@@ -15,26 +15,26 @@ library(knitr)
 knitr::opts_chunk$set(echo=TRUE, eval=TRUE, include=TRUE, tidy=TRUE, results='tex', fig.width=4, fig.asp=1, fig.align='center')
 render_listings()
 library(e1071)
-#source("C:/Users/Rowe/Documents/My Repo/my_functions.R")
 library(class)
 library(survival)
 library(Formula)
-library(splancs)
+#library(splancs)
 library(sp)
-library(kknn)
-library(Hmisc)
+source('~/R/My Packages/kknn/R/kknn.R')
+source('~/R/My Packages/kknn/R/specClust.R')
+#library(Hmisc)
 library(shapefiles)
 library(foreign)
-library(aspace)
+#library(aspace)
 library(rpart)
 library(rpart.plot)
-library(rattle)
-library(adabag)
+#library(rattle)
+#library(adabag)
 library(mlbench)
-library(caret)
+#library(caret)
 library(lattice)
 library(ggplot2)
-library(randomForest)
+#library(randomForest)
 library(nnet)
 trainsample=function(dataset,trainprop){
   return(sample(nrow(dataset),
@@ -47,6 +47,17 @@ my_shapiro = function(dataset){
   }
   return(normality)
 }
+splitdata=function(data_frame,training_fraction){
+  size_train<-ceiling(nrow(data_frame)*training_fraction)
+  train_rows<-sample(nrow(data_frame),size_train)
+  training<-data_frame[train_rows,]
+  test<-data_frame[-train_rows,]
+  #splitlist<-list(training,test)
+  list(train=training, test=test,train_rows=train_rows)
+}
+argmin = function(vector){return(which.min(vector))}
+argmax = function(vector){return(which.max(vector))}
+
 @
 \linenumbers
 \paragraph{}This data set is called the abalone data set. Abalones are a form of sea snails whose age can be determined by boring into the shell and, through a "boring and time consuming" process, by counting the rings much like a tree. In order to save our conchologist friends' time, we will attempt to predict the number of rings in the shell by measuring:
@@ -61,24 +72,21 @@ my_shapiro = function(dataset){
   \item Shell weight
 \een
 Preprocessing:
+\indent We already know from the UCI website that none of the data points are missing values or Nan's. Now all we have to see is if there is a class imbalance problem. As you can tell from below, there will not be class-imbalance. Also, by the Shapiro-Wilks test, we can see that none of the columns are normally distributed.
 <<>>=
-data=read.csv("C:/Users/Rowe/My-Programs/abalone.data.txt", header = FALSE)
-#We have enough data from the UCI website to know that none of the data points are missing values or Nan's.
+data=read.csv("~/My-Programs/Final Project Data Mining/abalone.data.txt", header = FALSE)
 table(data[,1])
-#Because there is almost even number of "M", "F" and "I" values here, there is minimal chance of a class imbalance problem coming from this variable.
 my_shapiro(data[,2:8])
-#From this function, we can confidently say that none of the continuous variables are normal.
 @
-Beginning:
+
+\indent Before we start running some real code, we're going to create a function that return the Root Mean Square Error (RMSE) and the Mean Absolute Error (MAE) and we're going to create test and training sets for the algorithms. For each one, we're going to tune the algorithm as best we can and then cross validate the scores for each one using delete-d and some form of k-fold cross validation. Then, we're going to use the cross-validation scores to compare algorithms.
 <<>>=
-#This function calculates a 1x2 matrix whose values are the Root Mean Square Error (RMSE) and the Mean Absolute Error (MAE) respectively.
 RMSE_MAE = function(true, predicted){
   error_matrix = matrix(nrow = 1, ncol = 2)
   error_matrix[1,1] = sqrt((1/length(true))*sum((predicted - true)^2))
   error_matrix[1,2]  = (1/length(true))*sum(abs(true - predicted))
   return(error_matrix)
 }
-#I am creating master train and test set so we can compare the acccuracies of the models directly
 set.seed(5364)
 split_data = splitdata(data, .7)
 train = split_data$train
@@ -93,12 +101,10 @@ for(i in 1:15){
   predicted_ann = predict(crude_ann, newdata = test)
   Error_matrix[i,] = RMSE_MAE(test[,9], predicted_ann)
 }
-Error_matrix[argmin(Error_matrix[,1]),]
 Error_matrix[argmin(Error_matrix[,2]),]
-RMSE_size = argmin(Error_matrix[,1])
-MAE_size = argmin(Error_matrix[,2])
+best_size = argmin(Error_matrix[,2])
 ann_cv = function(size, d, m, data_frame){
-  error_matrix=matrix(nrow = m+1, ncol = 2)
+  error_matrix=matrix(nrow = m, ncol = 2)
   for (i in 1:m){
     d_records=sample(nrow(data_frame),d)
     temp_train=data_frame[d_records,]
@@ -107,16 +113,12 @@ ann_cv = function(size, d, m, data_frame){
     predicted = predict(model, temp_test)
     error_matrix[i,] = RMSE_MAE(predicted, temp_test[,9])
   }
-  error_matrix[m+1,1] = mean(error_matrix[1:m,1])
-  error_matrix[m+1,2] = mean(error_matrix[1:m,2])
-  return(error_matrix)
+  return(list("RMSE average" = mean(error_matrix[,1]), "MAE average" =mean(error_matrix[,2])))
 }
-ann_cv(RMSE_size, round(.7*nrow(data)), 25, data)
-ann_cv(MAE_size, round(.7*nrow(data)), 25, data)
 ann_n_fold_cross=function(n,data_frame,size){
   chopping_point=floor(nrow(data_frame)/n)
   stopping_points=c(1/chopping_point,1:n)*chopping_point
-  error_matrix=matrix(ncol = 2, nrow = n+1)
+  error_matrix=matrix(ncol = 2, nrow = n)
   for (i in 1:n){
     lower_bound=stopping_points[i]
     upper_bound=stopping_points[i+1]
@@ -126,12 +128,10 @@ ann_n_fold_cross=function(n,data_frame,size){
     predicted = predict(model, temp_test)
     error_matrix[i,] = RMSE_MAE(predicted, temp_test[,9])
   }
-  error_matrix[n+1,1]=mean(error_matrix[1:n,1])
-  error_matrix[n+1,2]=mean(error_matrix[1:n,2])
-  return(error_matrix)
+  return(list("RMSE average" = mean(error_matrix[,1]),"MAE average" = mean(error_matrix[,2])))
 }
-ann_n_fold_cross(10, data, RMSE_size)
-ann_n_fold_cross(10, data, MAE_size)
+ann_cv(best_size, round(nrow(data)*.7), 25, data)
+ann_n_fold_cross(10, data, best_size)
 @
 Decision Trees:
 <<>>=
@@ -140,7 +140,7 @@ first_tree = rpart(V9~., data = train)
 first_predicted = predict(first_tree, newdata = test)
 RMSE_MAE(first_predicted, test[,9])
 #Now that we have an estimate for accuracy, we're going to use randomForest to get a more accurate model using the same test and train data as the decision tree did. Note: like all tune functions, it does include a 10-fold cross validation test of accuracy.
-forestmodel=tune.randomForest(V9~., data = train)
+forestmodel=randomForest(V9~., data = train)
 forestmodel
 randomforest_cv = function(d, m, data_frame){
   error_matrix=matrix(nrow = m+1, ncol = 2)
@@ -310,7 +310,7 @@ Weighted Knn-function:
 <<>>=
 k_vector=c(1:50)
 #Since the optimal kernel does not always provide the best result, all of them are being tested with k values between 1 and 50. Once the optimal kernal and k value are calculated, they will cross validated.
-  optimal_test=train.kknn(V9~.,data = knn_data, ks=k_vector, kernel="optimal",ykernel=-1.2:1.2)
+  optimal_test=train.kknn(V9~.,data = knn_data, distance = 1,ks=k_vector, kernel="optimal",ykernel=-1.2:1.2)
   triangular_test=train.kknn(V9~.,data = knn_data, ks=k_vector, kernel="triangular",ykernel=-1.2:1.2 )
   gaussian_test=train.kknn(V9~.,data= knn_data, ks=k_vector, kernel="gaussian",ykernel=-1.2:1.2 )
   epanechnikov_test=train.kknn(V9~.,data = knn_data, ks=k_vector, kernel="epanechnikov",ykernel=-1.2:1.2 )

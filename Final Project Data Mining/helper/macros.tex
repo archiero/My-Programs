@@ -1,0 +1,112 @@
+%Generally useful packages
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{epsfig}
+\usepackage{float} 
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{units}
+\usepackage{pdfpages}
+\usepackage{comment}
+\usepackage{xparse}
+\usepackage{xspace}
+\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage[autostyle, english = american]{csquotes}
+\MakeOuterQuote{"}
+
+
+%Convenince macros for common tasks
+
+%Typesetting
+\usepackage[shortlabels]{enumitem}
+\setlist{itemsep=0ex,parsep=\parskip,topsep=0ex,partopsep=0ex}
+\newlist{Mitem}{itemize}{5}
+\setlist[Mitem,1]{label=$\bullet$}
+\setlist[Mitem,2]{label=$-$}
+\setlist[Mitem,3]{label=$\ast$}
+\setlist[Mitem,4]{label=$\circ$}
+\setlist[Mitem,5]{label=$\cdot$}
+\DeclareDocumentCommand\bit{ O{} }{\begin{Mitem}[#1]}
+\DeclareDocumentCommand\eit{}{\end{Mitem}}
+
+
+\newlist{Menum}{enumerate}{5}
+\setlist[Menum,1]{label=\arabic*)}
+\setlist[Menum,2]{label=\arabic{Menumi}.\Alph*)}
+\setlist[Menum,3]{label=\arabic{Menumi}.\Alph{Menumii}.\roman*)}
+\setlist[Menum,4]{label=\arabic{Menumi}.\Alph{Menumii}.\roman{Menumiii}.\alph*)}
+\setlist[Menum,5]{label=\arabic{Menumi}.\Alph{Menumii}.\roman{Menumiii}.\alph{Menumiii}.\arabic*)}
+\DeclareDocumentCommand\ben{ O{} }{\begin{Menum}[#1]}
+\DeclareDocumentCommand\een{}{\end{Menum}}
+
+
+\DeclareDocumentCommand\hhrule{}{\vspace{\parskip} \hrule \vspace{1pt} \hrule}
+\DeclareDocumentCommand\bu{ O{} }{\textbf{\underline{#1}}}
+\DeclareDocumentCommand\seeme{ O{} }{\textbf{\underline{\uppercase{#1}}}}
+\DeclareDocumentCommand\emds{ O{} }{\ensuremath{\displaystyle{#1}}}
+\DeclareDocumentCommand\fillblanks{ O{default} }{\underline{\phantom{\huge #1#1}}}
+\DeclareDocumentCommand\dfn{}{\textbf{\underline{Definition}: }}
+\DeclareDocumentCommand\thm{}{\textbf{\underline{Theorem}: }}
+\DeclareDocumentCommand\latex{}{\LaTeX\xspace}
+
+
+%Numbers
+\DeclareDocumentCommand\MN{ O{} }{\emds[\mathbb{N}^{#1}]}
+\DeclareDocumentCommand\MZ{ O{} }{\emds[\mathbb{Z}^{#1}]}
+\DeclareDocumentCommand\MQ{ O{} }{\emds[\mathbb{Q}^{#1}]}
+\DeclareDocumentCommand\MR{ O{} }{\emds[\mathbb{R}^{#1}]}
+\DeclareDocumentCommand\MC{ O{} }{\emds[\mathbb{C}^{#1}]}
+\DeclareDocumentCommand\MF{ O{} }{\emds[\mathbb{F}^{#1}]}
+
+
+%Calculus
+\DeclareDocumentCommand\Mint{ O{f} O{x} O{} O{} }{\emds[\int_{#3}^{#4} #1 \,\, \mathrm{d} #2]}
+\DeclareDocumentCommand\MD{ O{f} O{x} }{\emds[\frac{d #1}{d #2}]}
+
+%Vector calculus
+\DeclareDocumentCommand\ihat{}{\emds[\boldsymbol{\hat{\imath}}]}
+\DeclareDocumentCommand\jhat{}{\emds[\boldsymbol{\hat{\jmath}}]}
+\DeclareDocumentCommand\khat{}{\Muvec[k]}
+\DeclareDocumentCommand\nhat{}{\Muvec[n]}
+\DeclareDocumentCommand\tauhat{}{\Muvec[\tau]}
+\DeclareDocumentCommand\Mpd{ O{f} O{x} }{\emds[\frac{\partial #1}{\partial #2}]}
+\DeclareDocumentCommand\Mdint{ O{f} O{D} }{\emds[\iint_{#2} #1 \,\, \mathrm{d} A]}
+\DeclareDocumentCommand\Miint{ O{f} O{x} O{} O{} O{y} O{} O{} }{\emds[\int_{#6}^{#7} \!\!\! \int_{#3}^{#4} #1 \,\, \mathrm{d} #2 \mathrm{d} #5]}
+\DeclareDocumentCommand\Mtint{ O{f} O{E} }{\emds[\iiint_{#2} #1 \,\, \mathrm{d} V]}
+\DeclareDocumentCommand\Msli{ O{f} O{C} }{\emds[\int_{#2} #1 \,\, \mathrm{d} s]}
+\DeclareDocumentCommand\Mvli{ O{\Mvec{F}} O{C} }{\emds[\int_{#2} #1 \cdot \mathrm{d} \Mvec[r]]}
+\DeclareDocumentCommand\Mvlib{ O{\Mvec{F}} O{C} }{\emds[\Msli[#1 \! \cdot \! \tauhat][#2]]}
+\DeclareDocumentCommand\Mssi{ O{f} O{S} }{\emds[\iint_{#2} #1 \,\, \mathrm{d} S]}
+\DeclareDocumentCommand\Mvsi{ O{\Mvec{F}} O{S} }{\emds[\iint_{#2} #1 \cdot \mathrm{d} \Mvec[S]]}
+\DeclareDocumentCommand\Mvsib{ O{\Mvec{F}} O{S} }{\emds[\Mssi[#1 \! \cdot \! \nhat][#2]]}
+
+
+%Linear Algebra
+\DeclareDocumentCommand\Mvec{ O{x} }{\emds[\boldsymbol{\vec{#1}}]}
+\DeclareDocumentCommand\Muvec{ O{u} }{\emds[\boldsymbol{\hat{#1}}]}
+\DeclareDocumentCommand\vx{}{\Mvec[x]}
+\DeclareDocumentCommand\vpi{}{\Mvec[\pi]}
+\DeclareDocumentCommand\Mmat{ O{ccccccccccccccccccccc} O{1}}{\emds[\left[ \begin{array}{#1} #2 \end{array} \right]]}
+
+
+%Analysis
+\DeclareDocumentCommand\Mlim{ O{a_n} O{n \infty} }{\emds[\lim_{\small #2} #1]}
+\DeclareDocumentCommand\Msup{ O{a_n} O{} }{\emds[\sup_{#2} #1]}
+\DeclareDocumentCommand\Minf{ O{a_n} O{} }{\emds[\inf_{#2} #1]}
+\DeclareDocumentCommand\Mlimsup{ O{a_n} O{n \to \infty} }{\emds[\limsup_{\small #2} #1]}
+\DeclareDocumentCommand\Mliminf{ O{a_n} O{n \to \infty} }{\emds[\liminf_{\small #2} #1]}
+\DeclareDocumentCommand\Mmax{ O{a_n} O{} }{\emds[\max_{#2} #1]}
+\DeclareDocumentCommand\Mmin{ O{a_n} O{} }{\emds[\min_{#2} #1]}
+\DeclareDocumentCommand\Mcup{ O{A_n} O{} O{} }{\emds[\bigcup_{#2}^{#3} #1]}
+\DeclareDocumentCommand\Mcap{ O{A_n} O{} O{} }{\emds[\bigcap_{#2}^{#3} #1]}
+\DeclareDocumentCommand\Msum{ O{a_n} O{} O{} }{\emds[\sum_{#2}^{#3} #1]}
+
+
+%Comment severity
+\DeclareDocumentCommand\sg{}{\textbf{(suggestion) }}
+\DeclareDocumentCommand\mi{}{\textbf{(minor) }}
+\DeclareDocumentCommand\mo{}{\textbf{(moderate) }}
+\DeclareDocumentCommand\ma{}{\textbf{(major) }}

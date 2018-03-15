@@ -11,3 +11,66 @@
 \usepackage{Sweave}
 \begin{document}
 \input{FinalProject-concordance}
+\linenumbers
+\paragraph{}This data set is called the abalone data set. Abalones are a form of sea snails whose age can be determined by boring into the shell and, through a "boring and time consuming" process, by counting the rings much like a tree. In order to save our conchologist friends' time, we will attempt to predict the number of rings in the shell by measuring:
+\ben
+  \item Sex
+  \item Length
+  \item Diameter
+  \item Height
+  \item Whole Weight
+  \item Shucked Weight
+  \item Viscera weight
+  \item Shell weight
+\een
+Preprocessing:
+\begin{Schunk}
+\begin{Sinput}
+> data=read.csv("~/My-Programs/Final Project Data Mining/abalone.data.txt", header = FALSE)
+> #We have enough data from the UCI website to know that none of the data points are missing values or Nan's.
+> table(data[,1])
+\end{Sinput}
+\begin{Soutput}
+   F    I    M 
+1307 1342 1528 
+\end{Soutput}
+\begin{Sinput}
+> #Because there is almost even number of "M", "F" and "I" values here, there is minimal chance of a class imbalance problem coming from this variable.
+> my_shapiro(data[,2:8])
+\end{Sinput}
+\begin{Soutput}
+[1] 7.442090e-29 1.648335e-28 1.181265e-47 1.013778e-27 9.340986e-32
+[6] 1.777103e-29 1.565014e-28
+\end{Soutput}
+\begin{Sinput}
+> #From this function, we can confidently say that none of the continuous variables are normal.
+\end{Sinput}
+\end{Schunk}
+Beginning:
+\begin{Schunk}
+\begin{Sinput}
+> #This function calculates a 1x2 matrix whose values are the Root Mean Square Error (RMSE) and the Mean Absolute Error (MAE) respectively.
+> RMSE_MAE = function(true, predicted){
++   error_matrix = matrix(nrow = 1, ncol = 2)
++   error_matrix[1,1] = sqrt((1/length(true))*sum((predicted - true)^2))
++   error_matrix[1,2]  = (1/length(true))*sum(abs(true - predicted))
++   return(error_matrix)
++ }
+> #I am creating master train and test set so we can compare the acccuracies of the models directly
+> set.seed(5364)
+> split_data = splitdata(data, .7)
+> train = split_data$train
+> test = split_data$test
+> train_rows = split_data$train_rows
+\end{Sinput}
+\end{Schunk}
+Artificial Neural Networks:
+\begin{Schunk}
+\begin{Sinput}
+> Error_matrix =  matrix(ncol = 2, nrow = 15)
+> for(i in 1:15){
++   crude_ann = nnet(V9~., data = train, size = as.numeric(i), maxit = 1000, linout = TRUE, trace = FALSE)
++   predicted_ann = predict(crude_ann, newdata = test)
++   Error_matrix[i,] = RMSE_MAE(test[,9], predicted_ann)
++ }
+> Error_matrix[argmin(Error_matrix[,1]),]
